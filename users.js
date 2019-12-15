@@ -9,15 +9,21 @@ function init() {
   const button = document.querySelector('button');
   const inputElements = document.querySelectorAll('input');
   const users = [];
-  const th = (document.querySelectorAll('th'));
-  const headers = Array.prototype.slice.call(th);
+  const th = Array.from(document.querySelectorAll('th'));
   const tbody = document.querySelector('tbody');
   
   const header = {
-    firstName: headers[0].innerText,
-    lastName: headers[1].innerText,
-    birthDate: headers[2].innerText
+    firstName: th[0].innerText,
+    lastName: th[1].innerText,
+    birthDate: th[2].innerText
   };
+  
+  //Adding in an event listener for each th element
+  th.forEach(th => {
+    th.addEventListener('click', function (e) {
+      console.log(e, th);
+    })
+  });
   
   //Functions
   function createTrElement(user) {
@@ -28,18 +34,18 @@ function init() {
       td.innerHTML = val;
       tr.appendChild(td)
     });
-    
   }
+  
   
   function sortBy(users, prop) {
     const newUsersArray = [...users];
-    if (headers.innerText.includes('(asc)')) {
+    if (th.innerText.includes('(asc)')) {
       
       newUsersArray.reverse();
-      headers.innerText.replace('(asc)', '(desc)')
+      th.innerText.replace('(asc)', '(desc)')
     } else {
       newUsersArray.sort();
-      headers.innerText.replace('(desc)', '(asc)')
+      th.innerText.replace('(desc)', '(asc)')
     }
     console.log(newUsersArray);
     return newUsersArray;
@@ -61,6 +67,6 @@ function init() {
     console.log(users);
   });
   
-  headers.forEach(th.addEventListener)
+ 
   
 }
