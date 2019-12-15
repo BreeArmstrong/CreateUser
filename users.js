@@ -1,15 +1,3 @@
-document.addEventListener('readystatechange', function () {
-  if (document.readyState === 'interactive') {
-    init();
-  }
-});
-
-function init() {
-  //Constants
-  const button = document.querySelector('button');
-  const inputElements = document.querySelectorAll('input');
-  const users = [];
-  
   
   //Create a get and set method for creating or updating a user
   const usersHandler = {
@@ -25,6 +13,7 @@ function init() {
       return true;
     }
   };
+
   
   //Create User - Model
   const model = {
@@ -48,22 +37,16 @@ function init() {
     users: new Proxy({}, usersHandler)
   };
   
-  //Adding in an event listener for each th element
-  const th = Array.from(document.querySelectorAll('th'));
-  th.forEach(th => {
-    th.addEventListener('click', function (e) {
-      console.log(e, th);
-    })
-  });
+  
   
   //Create User - UI Update - View
-  function renderUser() {
+  function renderUsers() {
     const tbody = document.querySelector('tbody');
     tbody.innerHTML = ''; //Clear whatever inner html is there.
     const props = Object.keys(model.props); // [firstName, lastName, dateOFBirth ]
     Object.values(model.users).forEach(user => {
       const tr = document.createElement('tr'); //TODO read up on create element in MDN
-      props.forEach(props => {
+      props.forEach(prop => {
         const td = document.createElement('td');
         td.innerHTML = user[prop];
         tr.appendChild(td)
@@ -72,38 +55,52 @@ function init() {
       });
     };
   
+  //Create User - Controller
+  const createUserControllerInit = () => {
+    const button = document.querySelector(model.createButton.selector);
+    const props = Object.keys(model.props);
+    const inputElements = props.map(
+      propName => document.querySelector(model.props[propName].selector)
+    );
+    console.log(inputElements);
+    button.addEventListener('click', () => {
+      const user = props.reduce((obj, propName, index) => {
+        obj[propName] = inputElements[index].value;
+        return obj;
+      }, {});
+      if (user.firstName.length && user.dateOfBirth.length) {
+        //code to generate uuid for the user
+        model.users[user.firstName] = user;
+        console.log('Updated the users array: ', model.users);
+      }
+    });
+  };
+  const sortUsersControllerInit = () => {
+    //Adding in an event listener for each th element
+    const th = Array.from(document.querySelectorAll('th'));
+    th.forEach(th => {
+      th.addEventListener('click', function (e) {
+        console.log(e, th);
+        const compareFn = (prop, a, b) => {
+          if (a[prop] < b[prop]) {return -1;}
+          else if(a[prop] > b[prop]) {return 1;}
+          else return 0;
+        };
+        model.users.sort(compareFn(null, 'firstName'))
+      })
+    });
+  };
+  const initController = () => {
+    createUserControllerInit();
+    sortUsersControllerInit();
+  };
   
-  
-  function sortBy(users, prop) {
-    const newUsersArray = [...users];
-    if (th.innerText.includes('(asc)')) {
-      
-      newUsersArray.reverse();
-      th.innerText.replace('(asc)', '(desc)')
-    } else {
-      newUsersArray.sort();
-      th.innerText.replace('(desc)', '(asc)')
+  document.addEventListener('readystatechange', () => {
+    if(document.readyState === 'interactive') {
+      initController();
     }
-    console.log(newUsersArray);
-    return newUsersArray;
-    
-  }
-  
-  
-  //Events
-  button.addEventListener('click', function () {
-    //Target the section for create user
-    const user = {
-      firstName: inputElements[0].value,
-      lastName: inputElements[1].value,
-      dob: inputElements[2].value
-    };
-    createTrElement(user);
-    console.log(user);
-    users.push(user);
-    console.log(users);
   });
+  
   
  
   
-}
