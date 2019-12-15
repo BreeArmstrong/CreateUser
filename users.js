@@ -9,32 +9,69 @@ function init() {
   const button = document.querySelector('button');
   const inputElements = document.querySelectorAll('input');
   const users = [];
-  const th = Array.from(document.querySelectorAll('th'));
-  const tbody = document.querySelector('tbody');
   
-  const header = {
-    firstName: th[0].innerText,
-    lastName: th[1].innerText,
-    birthDate: th[2].innerText
+  
+  //Create a get and set method for creating or updating a user
+  const usersHandler = {
+    get: function (obj, prop) {
+      console.log(`You are trying to access the ${prop} on the object ${obj}`);
+      return obj[prop];
+    },
+    set: function (obj, prop, newValue) {
+      console.log(`You are trying to set the ${prop} on the object ${obj} to the new value ${newValue}`);
+      obj[prop] = newValue;
+      renderUsers();
+      console.log('Envoked renderUsers again');
+      return true;
+    }
+  };
+  
+  //Create User - Model
+  const model = {
+    props: {
+      firstName: {
+        selector: 'input.first-name',
+        sortState: undefined //Is it asc or desc? default undefined until sort is called the first time
+      },
+      lastName: {
+        selector: 'input.last-name',
+        sortState: undefined
+      },
+      dateOfBirth: {
+        selector: 'input.date-of-birth',
+        sortState: undefined
+      }
+    },
+    createButton: {
+      selector: '.create-user button'
+    },
+    users: new Proxy({}, usersHandler)
   };
   
   //Adding in an event listener for each th element
+  const th = Array.from(document.querySelectorAll('th'));
   th.forEach(th => {
     th.addEventListener('click', function (e) {
       console.log(e, th);
     })
   });
   
-  //Functions
-  function createTrElement(user) {
-    const tr = document.createElement('tr'); //TODO read up on create element in MDN
-    tbody.appendChild(tr);
-    Object.values(user).forEach(val => {
-      const td = document.createElement('td');
-      td.innerHTML = val;
-      tr.appendChild(td)
-    });
-  }
+  //Create User - UI Update - View
+  function renderUser() {
+    const tbody = document.querySelector('tbody');
+    tbody.innerHTML = ''; //Clear whatever inner html is there.
+    const props = Object.keys(model.props); // [firstName, lastName, dateOFBirth ]
+    Object.values(model.users).forEach(user => {
+      const tr = document.createElement('tr'); //TODO read up on create element in MDN
+      props.forEach(props => {
+        const td = document.createElement('td');
+        td.innerHTML = user[prop];
+        tr.appendChild(td)
+      });
+        tbody.appendChild(tr);
+      });
+    };
+  
   
   
   function sortBy(users, prop) {
