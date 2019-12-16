@@ -81,12 +81,9 @@
     th.forEach(th => {
       th.addEventListener('click', function (e) {
         console.log(e, th);
-        const compareFn = (prop, a, b) => {
-          if (a[prop] < b[prop]) {return -1;}
-          else if(a[prop] > b[prop]) {return 1;}
-          else return 0;
-        };
-        model.users.sort(compareFn(null, 'firstName'))
+        
+        
+        // model.users.sort(compareFn.bind(null, 'firstName'))
       })
     });
   };
