@@ -1,21 +1,16 @@
 //Create a get and set method for creating or updating a user
-const usersHandler = {
-  get: function (obj, prop) {
-    console.log(`You are trying to access the ${prop} on the object ${obj}`);
-    return obj[prop];
-  },
+const modelHandler = {
   set: function (obj, prop, newValue) {
-    console.log(`You are trying to set the ${prop} on the object ${obj} to the new value ${newValue}`);
+    // console.log(`You are trying to set the ${prop} on the object ${obj} to the new value ${newValue}`, prop, obj, newValue  );
     obj[prop] = newValue;
     renderUsers();
-    console.log('Envoked renderUsers again');
     return true;
   }
 };
 
 
 //Create User - Model
-const model = {
+const modelTarget = {
   props: {
     firstName: {
       selector: 'input.first-name',
@@ -33,9 +28,25 @@ const model = {
   createButton: {
     selector: '.create-user button'
   },
-  users: new Proxy({}, usersHandler)
+  users: {
+    'Brianna': {
+      firstName: 'Brianna',
+      lastName: 'Grizell',
+      dateOfBirth: '2019-01-01'
+    },
+    'Krithika': {
+      firstName: 'Krithika',
+      lastName: 'Swaminathan',
+      dateOfBirth: '2019-02-01'
+    },
+    'Priya': {
+      firstName: 'Priya',
+      lastName: 'Ravi',
+      dateOfBirth: '2019-03-01'
+    }
+  }
 };
-
+const model = new Proxy(modelTarget, modelHandler);
 
 //Create User - UI Update - View
 function renderUsers() {
@@ -68,29 +79,44 @@ const createUserControllerInit = () => {
     }, {});
     if (user.firstName.length && user.dateOfBirth.length) {
       //code to generate uuid for the user
-      model.users[user.firstName] = user;
+      model.users = {
+        ...model.users,
+        [user.firstName]: user
+      };
       console.log('Updated the users array: ', model.users);
     }
   });
+  renderUsers();
 };
+
+const compareFn = (prop, a, b) => {
+  if (a[prop] < b[prop]) {
+    return -1;
+  } else if (a[prop] > b[prop]) {
+    return 1;
+  } else return 0;
+};
+
+const thClickHandler = function (e) {
+  //Replace the firstName with generic
+  const users = Object.values(model.users);
+  const {prop} = e.currentTarget.dataset;
+  users.sort(compareFn.bind(null, prop));
+  model.users = users.reduce((usersObj, user) => {
+    usersObj[user.firstName] = user;
+    return usersObj;
+  }, {});
+};
+
 const sortUsersControllerInit = () => {
   //Adding in an event listener for each th element
   const th = Array.from(document.querySelectorAll('th'));
   th.forEach(th => {
-    th.addEventListener('click', function () {
-      
-      const compareFn = (prop, a, b) => {
-        if (a[prop] < b[prop]) {
-          return -1;
-        } else if (a[prop] > b[prop]) {
-          return 1;
-        } else return 0;
-      };
-      //Replace the firstName with generic
-      Object.values(model.users).sort(compareFn.bind(null, th))
-    })
+    th.addEventListener('click', thClickHandler)
   });
 };
+
+
 const initController = () => {
   createUserControllerInit();
   sortUsersControllerInit();
@@ -101,7 +127,7 @@ document.addEventListener('readystatechange', () => {
     initController();
   }
 });
-  
-  
- 
-  
+
+
+
+
