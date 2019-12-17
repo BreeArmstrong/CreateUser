@@ -77,7 +77,7 @@ const sortUsersControllerInit = () => {
   //Adding in an event listener for each th element
   const th = Array.from(document.querySelectorAll('th'));
   th.forEach(th => {
-    th.addEventListener('click', function (e) {
+    th.addEventListener('click', function () {
       
       const compareFn = (prop, a, b) => {
         if (a[prop] < b[prop]) {
@@ -87,7 +87,7 @@ const sortUsersControllerInit = () => {
         } else return 0;
       };
       //Replace the firstName with generic
-      model.users.sort(compareFn.bind(null, th))
+      Object.values(model.users).sort(compareFn.bind(null, th))
     })
   });
 };
